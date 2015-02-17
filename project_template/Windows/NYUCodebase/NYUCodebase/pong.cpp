@@ -1,6 +1,6 @@
-//mouse click event does not work
-//could not use the system clock (using variables lastFrameTicks and amountToChangeToTime, etc.) without crashing
-//collision fails - the ball moves back and forth
+//mouse click event does not work - wanted to initiate ball movement with mouse click
+//could not use the system clock (using variables lastFrameTicks and amountToChangeToTime, etc.) without crashing; also, the game crashes after ~15 seconds
+//collision fails
 
 //a vector was made: entities[0] = paddle (left), entities[1] = paddle (right), entities[2] = ball
 #include <SDL.h>
@@ -23,10 +23,10 @@ float ballYMover = 0.02f;
 
 const float PI = 3.14159265358979f;
 
-/*
+
 float lastFrameTicks = 0.0f;
 float amountToChangeToTime = 0.0f;
-*/
+
 
 GLuint LoadTexture(const char *image_path) {
 	SDL_Surface *surface = IMG_Load(image_path);
@@ -146,54 +146,64 @@ void ProcessEvents(){
 				paddle2YMover -= 0.05f;
 				entities[1].y -= paddle2YMover;
 			}
-			if (event.type == SDL_MOUSEBUTTONDOWN){
-				if (event.button.button == SDL_BUTTON_LEFT){
-					ballXMover += 999.0f;
-					ballYMover += 999.0f;
-				}
+			if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {//(event.type == SDL_MOUSEBUTTONDOWN){
+				//if (event.button.button == 1){
+				//ballXMover += 0.03f;
+				//ballYMover += 0.03f;
+				//}
 			}
 		}
 	}
 }
 
 void Update(){
-	/*
+
 	float ticks = (float)SDL_GetTicks() / 1000.0f;
 	float elapsed = ticks - lastFrameTicks;
 	lastFrameTicks = ticks;
 	amountToChangeToTime += elapsed * 0.0001f;
-	*/
-	/*
+
+	//original movement of the ball; used in place of ticks because ticks kept crashing with an error message before game window even displays textures
 	ballXMover += 0.001f;
 	ballYMover += 0.0001f;
-	*/
+
 
 	if (!entities.empty()){
 		//ball hits upper part of right paddle
-		if (((entities[2].x + entities[2].width / 2) > ((entities[1].x - entities[1].width / 2)))){
-			//ballXMover *= amountToChangeToTime;
-			ballXMover *= -1.0f; 
-			
-			if (((entities[2].y + entities[2].height / 2) > ((entities[1].y)))){
-				ballYMover = 0.001f;
-			}
-			if (((entities[2].y + entities[2].height / 2) < ((entities[1].y)))){
-				ballYMover = -0.01f;
-			}
-			
-		}
-		if (((entities[2].x - entities[2].width / 2) < ((entities[0].x + entities[0].width / 2)))){
+		if (((entities[2].x + entities[2].direction_x + entities[2].width / 2) > ((entities[1].x - entities[1].width / 2)))){
 			//ballXMover *= amountToChangeToTime;
 			ballXMover *= -1.0f;
-			
-			if (((entities[2].y + entities[2].height / 2) > ((entities[1].y)))){
-				ballYMover = 0.001f;
+
+			if (((entities[2].y + entities[2].direction_y + entities[2].height / 2) > ((entities[1].y)))){
+				ballYMover *= -1.0f;
 			}
 			if (((entities[2].y + entities[2].height / 2) < ((entities[1].y)))){
-				ballYMover = -0.01f;
+				ballYMover *= -1.0f;
 			}
-			
+
 		}
+		if (((entities[2].x - entities[2].direction_x - entities[2].width / 2) < ((entities[0].x + entities[0].width / 2)))){
+			//ballXMover *= amountToChangeToTime;
+			ballXMover *= -1.0f;
+
+			if (((entities[2].y + entities[2].height / 2) > ((entities[1].y)))){
+				ballYMover *= -1.0f;
+			}
+			if (((entities[2].y + entities[2].height / 2) < ((entities[1].y)))){
+				ballYMover *= -1.0f;
+			}
+
+		}
+
+
+		//if ball hits top or bottom of the screen, it SHOULD bounce off
+		if ((entities[2].y + entities[2].direction_y) == 1.0f){
+			ballYMover *= -1.0f;
+		}
+		if ((entities[2].y + entities[2].direction_y) == -1.0f){
+			ballYMover *= -1.0f;
+		}
+
 	}
 }
 
@@ -227,6 +237,18 @@ void Render(){
 	ball.direction_x = ballXMover;
 	ball.direction_y = ballYMover;
 	ball.Draw();
+	/*  Adding this crashes for some reason -meant to reset the ball to center after the ball reaches the boundary
+	if (!entities.empty()){
+		if ((entities[2].x + entities[2].direction_x) > 1.33){
+			entities[2].direction_x = 0;
+			ball.Draw(); 
+		}
+		if ((entities[2].x - entities[2].direction_x) < -1.33){
+			entities[2].direction_x = 0;
+			ball.Draw(); 
+		}
+	}
+	*/
 	if (!(entityInVector(ball))){
 		entities.push_back(ball);
 	}
