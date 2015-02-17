@@ -1,6 +1,7 @@
-//mouse click event does not work - wanted to initiate ball movement with mouse click
-//could not use the system clock (using variables lastFrameTicks and amountToChangeToTime, etc.) without crashing; also, the game crashes after ~15 seconds
-//collision fails
+//-mouse click event does not work - wanted to initiate ball movement with mouse click
+//-could not use the system clock (using variables lastFrameTicks and amountToChangeToTime, etc.)
+//-the game crashes after ~15 seconds
+//-collision fails
 
 //a vector was made: entities[0] = paddle (left), entities[1] = paddle (right), entities[2] = ball
 #include <SDL.h>
@@ -164,6 +165,9 @@ void Update(){
 	amountToChangeToTime += elapsed * 0.0001f;
 
 	//original movement of the ball; used in place of ticks because ticks kept crashing with an error message before game window even displays textures
+	// though it now works, it's still slightly wonky and I can't get the timing right
+	//ballXMover += amountToChangeToTime;
+	//ballYMover += amountToChangeToTime;
 	ballXMover += 0.001f;
 	ballYMover += 0.0001f;
 
