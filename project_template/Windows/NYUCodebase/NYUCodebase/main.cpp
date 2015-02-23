@@ -1,7 +1,8 @@
-/*
+
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_image.h>
+
 
 SDL_Window* displayWindow;
 
@@ -29,4 +30,3 @@ int main(int argc, char *argv[])
 	SDL_Quit();
 	return 0;
 }
-*/
