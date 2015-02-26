@@ -1,4 +1,5 @@
-//press space to start
+//click to start
+//click more to speed up the ball
 
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -147,15 +148,15 @@ void Update(float& time){
 		(
 		(entities[2].x < entities[0].x + entities[0].width/800.0f) &&
 		(entities[2].x > entities[0].x - entities[0].width/800.0f) &&
-		(entities[2].y < entities[0].y + entities[0].height/120.0f) &&
-		(entities[2].y > entities[0].y - entities[0].height/120.0f)
+		(entities[2].y < entities[0].y + entities[0].height/50.0f) &&
+		(entities[2].y > entities[0].y - entities[0].height/50.0f)
 		)
 		||
 		(
 		(entities[2].x > entities[1].x - entities[1].width/800.0f) &&
 		(entities[2].x < entities[1].x + entities[1].width/800.0f) &&
-		(entities[2].y < entities[1].y + entities[1].height/120.0f) &&
-		(entities[2].y > entities[1].y - entities[1].height/120.0f)
+		(entities[2].y < entities[1].y + entities[1].height/50.0f) &&
+		(entities[2].y > entities[1].y - entities[1].height/50.0f)
 		)
 		)
 	{	
