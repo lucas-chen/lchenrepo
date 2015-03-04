@@ -128,8 +128,8 @@ void ProcessEvents(float& elapsed){
 		
 		if (event.type == SDL_MOUSEBUTTONDOWN){
 			if (event.button.button == 1){
-				entities[2].direction_x += elapsed * 300;
-				entities[2].direction_y += elapsed * 100;
+				entities[2].direction_x += elapsed * 500;
+				entities[2].direction_y += elapsed * 300;
 			}
 		}
 		
@@ -182,12 +182,8 @@ void Update(float& time){
 }
 
 
-void Render(/*GLuint& texturePaddle1, GLuint& texturePaddle2, GLuint& textureCry*/){
+void Render(GLuint& texturePaddle1, GLuint& texturePaddle2, GLuint& textureCry){
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	GLuint texturePaddle1 = LoadTexture("pong/cardBack_blue1.png");
-	GLuint texturePaddle2 = LoadTexture("pong/cardBack_red1.png");
-	GLuint textureCry = LoadTexture("pong/cry.png");
 
 
 	if (!entities.empty()){
@@ -211,8 +207,11 @@ void Render(/*GLuint& texturePaddle1, GLuint& texturePaddle2, GLuint& textureCry
 int main(int argc, char *argv[]){
 	glClear(GL_COLOR_BUFFER_BIT);
 
-
 	Setup();
+
+	GLuint texturePaddle1 = LoadTexture("pong/cardBack_blue1.png");
+	GLuint texturePaddle2 = LoadTexture("pong/cardBack_red1.png");
+	GLuint textureCry = LoadTexture("pong/cry.png");
 
 	float lastFrameTicks = 0.0f;
 
@@ -226,7 +225,7 @@ int main(int argc, char *argv[]){
 		if (!entities.empty()){
 			Update(elapsed);
 		}
-		Render(/*texturePaddle1, texturePaddle2, textureCry*/);
+		Render(texturePaddle1, texturePaddle2, textureCry);
 
 	}
 
