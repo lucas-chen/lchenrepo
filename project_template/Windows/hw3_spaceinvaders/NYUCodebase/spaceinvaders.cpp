@@ -484,6 +484,7 @@ void updateGame(float elapsed, int spriteSheetTexture){
 						playerCooldown = 5.0f;
 					}
 				}
+				/*
 				if (event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
 					if (ships[0]->xPos > -1.25){
 						ships[0]->xPos = ships[0]->xPos - 0.05f;
@@ -494,7 +495,9 @@ void updateGame(float elapsed, int spriteSheetTexture){
 						ships[0]->xPos = ships[0]->xPos + 0.05f;
 					}
 				}
+				*/
 			}
+			/*
 			if (keys[SDL_SCANCODE_SPACE]) {
 				if (playerCooldown < 0.01f){
 					Bullet* bullet = new Bullet(spriteSheetTexture, 856.0f / 1024.0f, 421.0f / 1024.0f, 9.0f / 1024.0f, 54.0f / 1024.0f);
@@ -504,6 +507,7 @@ void updateGame(float elapsed, int spriteSheetTexture){
 					playerCooldown = 8.0f;
 				}
 			}
+			*/
 
 		}
 		
@@ -689,12 +693,10 @@ void render(int textTexture, int spriteSheet) {
 
 
 int main(int argc, char *argv[]){
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	Setup();
 
 	GLuint spriteSheet = LoadTexture("spaceinvaders/sheet.png");
-	GLuint text = LoadTexture("spaceinvaders/font1.png");
+	GLuint text = LoadTexture("spaceinvaders/font2.png");
 
 	loadAliens(spriteSheet);
 

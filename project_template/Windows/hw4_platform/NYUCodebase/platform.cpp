@@ -9,13 +9,17 @@
 using namespace std;
 
 SDL_Window* displayWindow;
-
 bool done = false;
-
-
 enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_GAME_OVER };
 int state;
-int score; 
+float gravity_x = 0.0f;
+float gravity_y = -9.8f;
+
+// 60 FPS (1.0f/60.0f)
+#define FIXED_TIMESTEP 0.0166666f
+#define MAX_TIMESTEPS 6
+float timeLeftOver = 0.0f;
+
 
 GLuint LoadTexture(const char *image_path) {
 	SDL_Surface *surface = IMG_Load(image_path);
@@ -32,44 +36,87 @@ GLuint LoadTexture(const char *image_path) {
 	return textureID;
 }
 
-void DrawSprite(GLint texture, float width, float height, float x, float y, float rotation) {
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef(x, y, 0.0f);
-	glRotatef(rotation, 0.0f, 0.0f, 1.0f);
-	//glScalef(width, height, 1.0f);
-	GLfloat quad[] = { 0.0f, 0.0f + height, 0.0f, 0.0f, 0.0f + width, 0.0f, 0.0f + width, 0.0f + height};
-	glVertexPointer(2, GL_FLOAT, 0, quad);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	GLfloat quadUVs[] = { 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0 };
-	glTexCoordPointer(2, GL_FLOAT, 0, quadUVs);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDrawArrays(GL_QUADS, 0, 4);
-	glDisable(GL_TEXTURE_2D);
+
+float lerp(float v0, float v1, float t) {
+	return (1.0f - t)*v0 + t*v1;
 }
 
 class SheetSprite {
 public:
 	SheetSprite();
-	SheetSprite(unsigned int textureID, float u, float v, float width, float height);
-	void Draw(float scale, float x, float y);
-	bool operator==(const SheetSprite& other) const;
-	unsigned int textureID;
+	SheetSprite(int textureID, float u, float v, float width, float height) :
+		textureID(textureID), u(u), v(v), width(width), height(height)
+	{
+		xPos = 0.0f;
+		yPos = 0.0f;
+		width = 0.0f;
+		height = 0.2f;
+		rotation = 0.0f;
+		scale = 0.0f;
+		velocity_x = 0.0f;
+		velocity_y = 0.0f;
+		acceleration_x = 0.0f;
+		acceleration_y = 0.0f;
+		friction_x = 0.0f;
+		friction_y = 0.0f;
+		isStatic = false;
+		collidedTop = false;
+		collidedBottom = false;
+		collidedLeft = false;
+		collidedRight = false;
+
+		isStatic = false;
+
+		isPlayer = false;
+		canJump = false;
+
+		isItem = false;
+		isCollected = false;
+	}
+	void Draw(float scale, float x, float y, float rotation);
+	bool operator==(const SheetSprite* other) const;
+	int textureID;
 	float u;
 	float v;
 	float width;
 	float height;
+	float xPos;
+	float yPos;
+	float rotation;
+	float scale;
+
+	float x_dir;
+	float y_dir;
+	float speed;
+	float velocity_x;
+	float velocity_y;
+	float acceleration_x;
+	float acceleration_y;
+	float friction_x;
+	float friction_y;
+
+	bool collidedTop;
+	bool collidedBottom;
+	bool collidedLeft;
+	bool collidedRight;
+
+	bool isStatic;
+
+	bool isPlayer;
+	bool canJump;
+
+	bool isItem;
+	bool isCollected;
+
 };
 
-bool SheetSprite::operator== (const SheetSprite& other) const {
-	return &textureID == &(other.textureID);
+vector<SheetSprite*> entities;
+
+bool SheetSprite::operator== (const SheetSprite* other) const {
+	return this == other;
 }
 
-void SheetSprite::Draw(float scale, float x, float y) {
+void SheetSprite::Draw(float scale, float x, float y, float rotation) {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glMatrixMode(GL_MODELVIEW);
@@ -95,6 +142,44 @@ void SheetSprite::Draw(float scale, float x, float y) {
 
 	// draw arrays
 }
+
+bool isColliding(SheetSprite* e1, SheetSprite* e2){
+	if (e1->yPos - e1->height * 0.5 > e2->yPos + e2->height * 0.5){
+		return false;
+	}
+	if (e1->yPos + e1->height * 0.5 < e2->yPos - e2->height * 0.5){
+		return false;
+	}
+	if (e1->xPos - e1->width * 0.5 > e2->xPos + e2->width * 0.5){
+		return false;
+	}
+	if (e1->xPos + e1->width * 0.5 < e2->xPos - e2->width * 0.5){
+		return false;
+	}
+	return true;
+}
+/*
+bool isCollidingY(SheetSprite* e1, SheetSprite* e2){
+	if (e1->yPos + e1->height * 0.5 < e2->yPos - e2->height * 0.5){
+		return false;
+	}
+	if (e1->yPos - e1->height * 0.5 > e2->yPos + e2->height * 0.5){
+		return false;
+	}
+	return true;
+}
+
+bool isCollidingX(SheetSprite* e1, SheetSprite* e2){
+	if (e1->xPos - e1->width * 0.5 > e2->xPos + e2->width * 0.5){
+		return false;
+	}
+	if (e1->xPos + e1->width * 0.5 < e2->xPos - e2->width * 0.5){
+		return false;
+	}
+	return true;
+}
+*/
+
 
 
 void DrawText(int fontTexture, string text, float size, float spacing, float r, float g, float b, float a) {
@@ -130,34 +215,11 @@ void DrawText(int fontTexture, string text, float size, float spacing, float r, 
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-bool areBulletsCollidingWithShip(Bullet* bullet, Ship* ship){
-	if (bullet->yPos - bullet->height * 0.5 > ship->yPos + ship->height * 0.5){
-		return false;
-	}
-	if (bullet->yPos + bullet->height * 0.5 < ship->yPos - ship->height * 0.5){
-		return false;
-	}
-	if (bullet->xPos + bullet->width * 0.5 < ship->xPos - ship->width * 0.5){
-		return false;
-	}
-	if (bullet->xPos - bullet->width * 0.5 > ship->xPos + ship->width * 0.5){
-		return false;
-	}
-	return true;
-}
-
-bool areBulletsCollidingWithAliens(Bullet* bullet, Alien* alien){
-	if (bullet->yPos - bullet->height * 0.5 > alien->yPos + alien->height * 0.5){
-		return false;
-	}
-	if (bullet->yPos + bullet->height * 0.5 < alien->yPos - alien->height * 0.5){
-		return false;
-	}
-	if (bullet->xPos + bullet->width * 0.5 < alien->xPos - alien->width * 0.5){
-		return false;
-	}
-	if (bullet->xPos - bullet->width * 0.5 > alien->xPos + alien->width * 0.5){
-		return false;
+bool allCollected(){
+	for (size_t i = 0; i < entities.size(); i++){
+		if (entities[i]->isItem && !entities[i]->isCollected){
+			return false;
+		}
 	}
 	return true;
 }
@@ -178,7 +240,6 @@ void Setup(){
 
 	glLoadIdentity();
 
-	score = 0; 
 	state = STATE_MAIN_MENU;
 }
 
@@ -201,51 +262,83 @@ void updateMenu(float elapsed){
 	}
 }
 
-void updateGame(float elapsed, int bulletTexture){
+void updateGame(float elapsed, int spriteSheetTexture){
 	SDL_Event event;
 
-	if (ships[0]->lives > 0){
-
-		while (SDL_PollEvent(&event)) {
-
-			if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
-				done = true;
-			}
-			else if (event.type == SDL_KEYDOWN) {
-				if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE){
-					state = STATE_GAME_OVER;
-				}
-				if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-					//Bullet* bullet = new Bullet(bulletTexture, 856.0f / 1024.0f, 421.0f / 1024.0f, 9.0f / 1024.0f, 54.0f / 1024.0f);
-					//bullet->xPos = ships[0]->xPos;
-					//bullet->yPos = ships[0]->yPos;
-					//myBullets.push_back(bullet);
-				}
-			}
-		}
-		/*
-		for (int i = 0; i < theirBullets.size(); i++){
-			if (areBulletsCollidingWithShip(theirBullets[i], ship[0])){
-				ships[0]->lives = ships[0]lives - 1;
-			}
-		}
-
-		for (int j = 0; j < myBullets.size(); j++){
-			for (int k = 0; k < aliens.size(); k++){
-				if (areBulletsCollidingWithAliens(myBullets[j], aliens[k]){
-					delete aliens[k];
-					myBullets[j].xPos = 2.0;
-					myBullets[j].yPos = 2.0; 
-				}
-			}
-		}
-		*/
-
-	}
-
-	else if (ships[0]->lives == 0){
+	if (allCollected()){
 		state = STATE_GAME_OVER;
 	}
+
+	while (SDL_PollEvent(&event)) {
+
+
+		if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
+			done = true;
+		}
+		else if (event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE){
+			state = STATE_GAME_OVER;
+		}
+		else if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+			for (size_t i = 0; i < entities.size(); i++){
+				if (entities[i]->isPlayer){
+					if (entities[i]->collidedBottom){
+						entities[i]->collidedBottom = false;
+						entities[i]->velocity_y = 5.0f;
+					}
+				}
+			}
+		}
+
+
+	}
+	const Uint8 *keys = SDL_GetKeyboardState(NULL);
+	if (keys[SDL_SCANCODE_LEFT]) {	
+		for (size_t i = 0; i < entities.size(); i++){
+			if (entities[i]->isPlayer && entities[i]->xPos > -1.25f){
+				if (entities[i]->velocity_x > 0.0f)
+					entities[i]->velocity_x = 0.0f;
+				if (entities[i]->velocity_x > -2.5f)
+					entities[i]->acceleration_x = -9.8f;
+			}
+			if (entities[i]->isPlayer && entities[i]->xPos <= -1.25f){
+				entities[i]->velocity_x = 0.0f;
+			}
+		}
+	}
+
+	else if (keys[SDL_SCANCODE_RIGHT]) {
+		for (size_t i = 0; i < entities.size(); i++){
+			if (entities[i]->isPlayer && entities[i]->xPos < 1.25f){
+				if (entities[i]->velocity_x < 0.0f)
+					entities[i]->velocity_x = 0.0f;
+				if (entities[i]->velocity_x < 2.5f)
+					entities[i]->acceleration_x = 9.8f;
+			}
+			if (entities[i]->isPlayer && entities[i]->xPos >= 1.25f){
+				entities[i]->velocity_x = 0.0f;
+			}
+		}
+	}
+		
+
+	else{
+		for (size_t i = 0; i < entities.size(); i++){
+			if (entities[i]->isPlayer){
+				entities[i]->velocity_x = 0.0f;
+				entities[i]->acceleration_x = 0.0f;
+			}
+		}
+	}
+	for (size_t i = 0; i < entities.size(); i++){
+		for (size_t j = 0; j < entities.size(); j++){
+			if (entities[i]->isPlayer && entities[j]->isItem){
+				if (isColliding(entities[i], entities[j])){
+					entities[j]->isCollected = true;
+				}
+			}
+		}
+	}
+		
 }
 
 void updateGameOver(float elapsed){
@@ -259,6 +352,86 @@ void updateGameOver(float elapsed){
 	}
 }
 
+void fixedUpdate(){
+	
+	for (size_t i = 0; i < entities.size(); i++){
+		if (entities[i]->collidedTop){
+			entities[i]->velocity_y = 0.0f;
+		}
+		if (entities[i]->collidedBottom){
+			entities[i]->velocity_y = 0.0f;
+			entities[i]->canJump = true;
+		}
+		if (entities[i]->collidedLeft){
+			entities[i]->velocity_x = 0.0f;
+		}
+		if (entities[i]->collidedRight){
+			entities[i]->velocity_x = 0.0f;
+		}
+
+		entities[i]->collidedTop = false;
+		entities[i]->collidedBottom = false;
+		entities[i]->collidedLeft = false;
+		entities[i]->collidedRight = false;
+
+
+		if (!entities[i]->isStatic){
+			entities[i]->velocity_x += gravity_x * FIXED_TIMESTEP;
+			entities[i]->velocity_y += gravity_y * FIXED_TIMESTEP;
+			
+			entities[i]->velocity_x = lerp(entities[i]->velocity_x, 0.0f, FIXED_TIMESTEP * entities[i]->friction_x);
+			entities[i]->velocity_y = lerp(entities[i]->velocity_y, 0.0f, FIXED_TIMESTEP * entities[i]->friction_y);
+			entities[i]->velocity_x += entities[i]->acceleration_x * FIXED_TIMESTEP;
+			entities[i]->velocity_y += entities[i]->acceleration_y * FIXED_TIMESTEP;
+			
+
+			entities[i]->yPos += entities[i]->velocity_y * FIXED_TIMESTEP;
+			for (size_t j = 0; j < entities.size(); j++){
+				if (isColliding(entities[i], entities[j]) && entities[i] != entities[j]){
+					if (entities[j]->isStatic){
+						float y_penetration = fabs(fabs(entities[i]->yPos - entities[j]->yPos) - entities[i]->height / 2.0f - entities[j]->height / 2.0f);
+						if (entities[i]->yPos > entities[j]->yPos){
+							entities[i]->yPos += y_penetration + 0.001f;
+							entities[i]->collidedBottom = true;
+							entities[i]->canJump = true;
+						}
+						else if (entities[i]->yPos < entities[j]->yPos){
+							entities[i]->yPos -= y_penetration + 0.001f;
+							entities[i]->collidedTop = true;
+						}
+					}
+				}
+			}
+			
+			entities[i]->xPos += entities[i]->velocity_x * FIXED_TIMESTEP;
+			for (size_t j = 0; j < entities.size(); j++){
+				if (isColliding(entities[i], entities[j])){
+					if (entities[j]->isStatic){
+						float x_penetration = fabs(fabs(entities[i]->xPos - entities[j]->xPos) - entities[i]->width / 2.0f - entities[j]->width / 2.0f);
+						if (entities[i]->xPos > entities[j]->xPos){
+							entities[i]->xPos += x_penetration + 0.001f;
+							entities[i]->collidedLeft = true;
+						}
+						else if (entities[i]->xPos < entities[j]->xPos){
+							entities[i]->xPos -= x_penetration + 0.001f;
+							entities[i]->collidedRight = true;
+						}
+					}
+				}
+			}
+		
+		}
+		
+
+		if (!entities[i]->collidedBottom){
+			entities[i]->canJump = false;
+		}
+
+	}
+		
+}
+
+
 void update(float elapsed, int bulletTexture) {
 	switch (state) {
 	case STATE_MAIN_MENU:
@@ -270,6 +443,7 @@ void update(float elapsed, int bulletTexture) {
 	case STATE_GAME_OVER:
 		updateGameOver(elapsed);
 		break;
+
 	}
 }
 
@@ -277,41 +451,46 @@ void renderMenu(int textTexture) {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(-1.2f, 0.3f, 0.0f);
-	DrawText(textTexture, "Press SPACE to Shoot, Arrow Keys to Move", 0.05f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	DrawText(textTexture, "Press Space to Jump, Arrow Keys to Move", 0.05f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	glLoadIdentity();
+	glTranslatef(-1.2f, 0.0f, 0.0f);
+	DrawText(textTexture, "Collect the items to win, watch out for cracks", 0.05f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	glLoadIdentity();
 	glTranslatef(-1.2f, -0.3f, 0.0f);
-	DrawText(textTexture, "Press SPACE to start the game, BACKSPACE to exit", 0.05f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	DrawText(textTexture, "Press SPACE to start the game, BACKSPACE to QUIT", 0.05f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	//USE TO cout VALUES
 	/*
 	glLoadIdentity();
 	glTranslatef(0.0f, 0.0f, 0.0f);
 	DrawText(textTexture, to_string(ships[0]->v), 0.05f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	*/
-	
-}
-void renderGame(int textTexture, int spriteSheet, int spriteSheet2) {
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef(-1.3f, 0.95f, 1.0f);
-	string StringScore = to_string(score);
-	DrawText(textTexture, "Score: " + StringScore, 0.05f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	glLoadIdentity();	
 
-	for (size_t i = 0; i < ships.size(); i++){
-		ships[i]->Draw(2.0, ships[i]->xPos, ships[i]->yPos);
-	}
-	for (size_t j = 0; j < aliens.size(); j++){
-		if (aliens[j]->alive){
-			aliens[j]->Draw(2.0, aliens[j]->xPos, aliens[j]->yPos);
+}
+void renderGame(int textTexture) {
+
+	for (size_t i = 0; i < entities.size(); i++){
+		if (entities[i]->isStatic){
+			entities[i]->Draw(1.0f, entities[i]->xPos, entities[i]->yPos, 0.0f);
 		}
 	}
-	for (size_t k = 0; k < myBullets.size(); k++){
-		myBullets[k]->Draw(2.0, myBullets[k]->xPos, myBullets[k]->yPos);
+	
+	for (size_t i = 0; i < entities.size(); i++){
+		if (entities[i]->isItem && !entities[i]->isCollected){
+			entities[i]->Draw(2.0f, entities[i]->xPos, entities[i]->yPos, 0.0f);
+		}
 	}
-	for (size_t l = 0; l < theirBullets.size(); l++){
-		theirBullets[l]->Draw(2.0, theirBullets[l]->xPos, theirBullets[l]->yPos);
+
+	for (size_t i = 0; i < entities.size(); i++){
+		if (entities[i]->isPlayer){
+			entities[i]->Draw(1.0f, entities[i]->xPos, entities[i]->yPos, 0.0f);
+		}
 	}
+	
+
+
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	
 }
 void renderGameOver(int textTexture) {
 
@@ -321,14 +500,15 @@ void renderGameOver(int textTexture) {
 	DrawText(textTexture, "GAME OVER", 0.2f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void render(int textTexture, int spriteSheet, int spriteSheet2) {
+
+void render(int textTexture) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	switch (state) {
 	case STATE_MAIN_MENU:
 		renderMenu(textTexture);
 		break;
 	case STATE_GAME_LEVEL:
-		renderGame(textTexture, spriteSheet, spriteSheet2);
+		renderGame(textTexture);
 		break;
 	case STATE_GAME_OVER:
 		renderGameOver(textTexture);
@@ -338,55 +518,72 @@ void render(int textTexture, int spriteSheet, int spriteSheet2) {
 
 }
 
-void loadAliens(int spriteSheetTexture){
-	
-	float alienU = getUniformU(89, 30, 16);
-	float alienV = getUniformV(89, 30, 16);
-	float alienWidth = getUniformWidth(89, 30, 16);
-	float alienHeight = getUniformHeight(89, 30, 16);
+void loadSheets(int spriteSheet){
+	//buttonBlue.png" x="0" y="78" width="222" height="39"
+	//"meteorBrown_big1.png" x="224" y="664" width="101" height="84"
+	//"ufoRed.png" x="444" y="0" width="91" height="91"
 
-	// shoves aliens into a vector
-	for (float j = 0.8f; j > 0.6f; j = j - 0.1f){
-		for (float i = -0.5f; i < 0.5f; i = i + 0.1f) {
-			Alien* alien = new Alien(spriteSheetTexture, alienU, alienV, alienWidth, alienHeight);
-			alien->xPos = i;
-			alien->yPos = j;
-			aliens.push_back(alien);
-		}
-	}
+	SheetSprite* platform1 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f);
+	platform1->xPos = 0.0f;
+	platform1->yPos = -0.8f;
+	platform1->isStatic = true;
+	entities.push_back(platform1);
+
+	SheetSprite* platform2 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f);
+	platform2->xPos = -0.5f;
+	platform2->yPos = -0.8f;
+	platform2->isStatic = true;
+	entities.push_back(platform2);
+
+	SheetSprite* platform3 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f);
+	platform3->xPos = 0.5f;
+	platform3->yPos = -0.8f;
+	platform3->isStatic = true;
+	entities.push_back(platform3);
+
+	SheetSprite* platform4 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f);
+	platform4->xPos = -1.0f;
+	platform4->yPos = -0.8f;
+	platform4->isStatic = true;
+	entities.push_back(platform4);
+
+	SheetSprite* platform5 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f);
+	platform5->xPos = 1.0f;
+	platform5->yPos = -0.8f;
+	platform5->isStatic = true;
+	entities.push_back(platform5);
+
+	SheetSprite* item1 = new SheetSprite(spriteSheet, 224.0f / 1024.0f, 664.0f / 1024.0f, 101.0f / 1024.0f, 84.0f / 1024.0f);
+	item1->xPos = -0.5f;
+	item1->yPos = -0.5f;
+	item1->isItem = true;
+	entities.push_back(item1);
+
+	SheetSprite* item2 = new SheetSprite(spriteSheet, 224.0f / 1024.0f, 664.0f / 1024.0f, 101.0f / 1024.0f, 84.0f / 1024.0f);
+	item2->xPos = 0.5f;
+	item2->yPos = -0.5f;
+	item2->isItem = true;
+	entities.push_back(item2);
+
+	SheetSprite* player = new SheetSprite(spriteSheet, 444.0f / 1024.0f, 0.0f / 1024.0f, 91.0f / 1024.0f, 91.0f / 1024.0f);
+	player->xPos = 0.0f;
+	player->yPos = 0.8f;
+	player->isPlayer = true;
+	player->friction_x = 3.0f;
+	player->friction_y = 3.0f;
+	entities.push_back(player);
+
 }
-/*
-void loadBullets(int spriteSheetTexture){
-	
-	for (size_t i = 0; i < 5000; i++){
-		Bullet bullet(spriteSheetTexture, 856.0f / 1024.0f, 421.0f / 1024.0f, 9.0f / 1024.0f, 54.0f / 1024.0f);
-		myBullets.push_back(bullet);
-		theirBullets.push_back(bullet);
-	}
-	
-}
-*/
+
 
 int main(int argc, char *argv[]){
-	glClear(GL_COLOR_BUFFER_BIT);
+
 	Setup();
-	
-	GLuint spriteSheet = LoadTexture("spaceinvaders/spritesheet.png"); // 30 x 30
-	GLuint spriteSheet2 = LoadTexture("spaceinvaders/sheet.png");
-	GLuint text = LoadTexture("spaceinvaders/font1.png");
+	 
+	GLuint spriteSheet = LoadTexture("platform/sheet.png");
+	GLuint text = LoadTexture("platform/font2.png");
 
-	loadAliens(spriteSheet);
-	//loadBullets(spriteSheet2);
-
-	// setup for creating the textures
-	float shipU = getUniformU(251, 30, 16);
-	float shipV = getUniformV(251, 30, 16);
-	float shipWidth = getUniformWidth(251, 30, 16);
-	float shipHeight = getUniformHeight(251, 30, 16);
-
-	Ship* player = new Ship(spriteSheet, shipU, shipV, shipWidth, shipHeight);
-	ships.push_back(player);
-
+	loadSheets(spriteSheet);
 
 	float lastFrameTicks = 0.0f;
 
@@ -395,11 +592,18 @@ int main(int argc, char *argv[]){
 		float ticks = (float)SDL_GetTicks() / 1000.0f;
 		float elapsed = ticks - lastFrameTicks;
 		lastFrameTicks = ticks;
+		float fixedElapsed = elapsed + timeLeftOver;
+		if (fixedElapsed > FIXED_TIMESTEP * MAX_TIMESTEPS) {
+			fixedElapsed = FIXED_TIMESTEP * MAX_TIMESTEPS;
+		}
+		while (fixedElapsed >= FIXED_TIMESTEP) {
+			fixedElapsed -= FIXED_TIMESTEP;
+			fixedUpdate();
+		}
+		timeLeftOver = fixedElapsed;
 		
-
-		//player->Draw(0.3, player->xPos, player->yPos);
-		update(elapsed, spriteSheet2);
-		render(text, spriteSheet, spriteSheet2);
+		update(fixedElapsed, spriteSheet);
+		render(text);
 		
 	}
 
