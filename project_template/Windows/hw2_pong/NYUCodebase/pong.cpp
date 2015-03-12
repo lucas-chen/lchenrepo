@@ -12,6 +12,11 @@ SDL_Window* displayWindow;
 
 bool done = false;
 
+// 60 FPS (1.0f/60.0f)
+#define FIXED_TIMESTEP 0.0166666f
+#define MAX_TIMESTEPS 6
+float timeLeftOver = 0.0f;
+
 GLuint LoadTexture(const char *image_path) {
 	SDL_Surface *surface = IMG_Load(image_path);
 	GLuint textureID;
@@ -111,25 +116,25 @@ void ProcessEvents(float& elapsed){
 		if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
 			done = true;
 		}
-		else if (event.type == SDL_KEYDOWN) {
-			if (event.key.keysym.scancode == SDL_SCANCODE_W) {
-				entities[0].y += 0.05f; 
-			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_S) {
-				entities[0].y += -0.05f; 
-			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_UP) {
-				entities[1].y += 0.05f;
-			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-				entities[1].y += -0.05f;
-			}
+		const Uint8 *keys = SDL_GetKeyboardState(NULL);
+		if (keys[SDL_SCANCODE_W]) {
+			entities[0].y += elapsed * 10;
 		}
+		if (keys[SDL_SCANCODE_S]) {
+			entities[0].y -= elapsed * 10;
+		}
+		if (keys[SDL_SCANCODE_UP]) {
+			entities[1].y += elapsed * 10;
+		}
+		if (keys[SDL_SCANCODE_DOWN]) {
+			entities[1].y -= elapsed * 10;
+		}
+
 		
 		if (event.type == SDL_MOUSEBUTTONDOWN){
 			if (event.button.button == 1){
-				entities[2].direction_x += elapsed * 500;
-				entities[2].direction_y += elapsed * 300;
+				entities[2].direction_x += elapsed * 50;
+				entities[2].direction_y += elapsed * 30;
 			}
 		}
 		
@@ -220,10 +225,19 @@ int main(int argc, char *argv[]){
 		float ticks = (float)SDL_GetTicks() / 1000.0f;
 		float elapsed = ticks - lastFrameTicks;
 		lastFrameTicks = ticks;
+		float fixedElapsed = elapsed + timeLeftOver;
+		if (fixedElapsed > FIXED_TIMESTEP * MAX_TIMESTEPS) {
+			fixedElapsed = FIXED_TIMESTEP * MAX_TIMESTEPS;
+		}
+		while (fixedElapsed >= FIXED_TIMESTEP) {
+			fixedElapsed -= FIXED_TIMESTEP;
+		}
+		timeLeftOver = fixedElapsed;
+
 
 		ProcessEvents(elapsed);
 		if (!entities.empty()){
-			Update(elapsed);
+			Update(fixedElapsed);
 		}
 		Render(texturePaddle1, texturePaddle2, textureCry);
 

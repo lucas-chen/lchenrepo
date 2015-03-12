@@ -44,15 +44,11 @@ float lerp(float v0, float v1, float t) {
 class SheetSprite {
 public:
 	SheetSprite();
-	SheetSprite(int textureID, float u, float v, float width, float height) :
-		textureID(textureID), u(u), v(v), width(width), height(height)
+	SheetSprite(int textureID, float u, float v, float width, float height, float scale) :
+		textureID(textureID), u(u), v(v), width(width), height(height), scale(scale)
 	{
-		xPos = 0.0f;
-		yPos = 0.0f;
-		width = 0.0f;
-		height = 0.2f;
-		rotation = 0.0f;
-		scale = 0.0f;
+		width = scale * width;
+		height = scale * height;
 		velocity_x = 0.0f;
 		velocity_y = 0.0f;
 		acceleration_x = 0.0f;
@@ -73,7 +69,7 @@ public:
 		isItem = false;
 		isCollected = false;
 	}
-	void Draw(float scale, float x, float y, float rotation);
+	void Draw(float x, float y, float rotation);
 	bool operator==(const SheetSprite* other) const;
 	int textureID;
 	float u;
@@ -116,17 +112,17 @@ bool SheetSprite::operator== (const SheetSprite* other) const {
 	return this == other;
 }
 
-void SheetSprite::Draw(float scale, float x, float y, float rotation) {
+void SheetSprite::Draw(float x, float y, float rotation) {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(x, y, 0.0f);
 	//glRotatef(rotation, 0.0f, 0.0f, 1.0f);
-	//glScalef(width, height, 1.0f);
+	glScalef(scale, scale, 1.0f);
 
-	GLfloat quad[] = { -width * scale, height * scale, -width * scale, -height * scale,
-		width * scale, -height * scale, width * scale, height * scale };
+	GLfloat quad[] = { -width * 0.5f, height * 0.5f, -width * 0.5f, -height * 0.5f,
+		width * 0.5f, -height * 0.5f, width * 0.5f, height * 0.5f};
 
 	glVertexPointer(2, GL_FLOAT, 0, quad);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -306,7 +302,7 @@ void updateGame(float elapsed, int spriteSheetTexture){
 		}
 	}
 
-	else if (keys[SDL_SCANCODE_RIGHT]) {
+	if (keys[SDL_SCANCODE_RIGHT]) {
 		for (size_t i = 0; i < entities.size(); i++){
 			if (entities[i]->isPlayer && entities[i]->xPos < 1.25f){
 				if (entities[i]->velocity_x < 0.0f)
@@ -321,7 +317,7 @@ void updateGame(float elapsed, int spriteSheetTexture){
 	}
 		
 
-	else{
+	if ((!keys[SDL_SCANCODE_RIGHT]) && (!keys[SDL_SCANCODE_LEFT])){
 		for (size_t i = 0; i < entities.size(); i++){
 			if (entities[i]->isPlayer){
 				entities[i]->velocity_x = 0.0f;
@@ -478,19 +474,19 @@ void renderGame(int textTexture) {
 
 	for (size_t i = 0; i < entities.size(); i++){
 		if (entities[i]->isStatic){
-			entities[i]->Draw(1.0f, entities[i]->xPos, entities[i]->yPos, 0.0f);
+			entities[i]->Draw(entities[i]->xPos, entities[i]->yPos, 0.0f);
 		}
 	}
 	
 	for (size_t i = 0; i < entities.size(); i++){
 		if (entities[i]->isItem && !entities[i]->isCollected){
-			entities[i]->Draw(2.0f, entities[i]->xPos, entities[i]->yPos, 0.0f);
+			entities[i]->Draw(entities[i]->xPos, entities[i]->yPos, 0.0f);
 		}
 	}
 
 	for (size_t i = 0; i < entities.size(); i++){
 		if (entities[i]->isPlayer){
-			entities[i]->Draw(1.0f, entities[i]->xPos, entities[i]->yPos, 0.0f);
+			entities[i]->Draw(entities[i]->xPos, entities[i]->yPos, 0.0f);
 		}
 	}
 	
@@ -531,49 +527,49 @@ void loadSheets(int spriteSheet){
 	//"meteorBrown_big1.png" x="224" y="664" width="101" height="84"
 	//"ufoRed.png" x="444" y="0" width="91" height="91"
 
-	SheetSprite* platform1 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f);
+	SheetSprite* platform1 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f, 2.0f);
 	platform1->xPos = 0.0f;
 	platform1->yPos = -0.8f;
 	platform1->isStatic = true;
 	entities.push_back(platform1);
 
-	SheetSprite* platform2 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f);
+	SheetSprite* platform2 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f, 2.0f);
 	platform2->xPos = -0.5f;
 	platform2->yPos = -0.8f;
 	platform2->isStatic = true;
 	entities.push_back(platform2);
 
-	SheetSprite* platform3 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f);
+	SheetSprite* platform3 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f, 2.0f);
 	platform3->xPos = 0.5f;
 	platform3->yPos = -0.8f;
 	platform3->isStatic = true;
 	entities.push_back(platform3);
 
-	SheetSprite* platform4 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f);
+	SheetSprite* platform4 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f, 2.0f);
 	platform4->xPos = -1.0f;
 	platform4->yPos = -0.8f;
 	platform4->isStatic = true;
 	entities.push_back(platform4);
 
-	SheetSprite* platform5 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f);
+	SheetSprite* platform5 = new SheetSprite(spriteSheet, 0.0f / 1024.0f, 78.0f / 1024.0f, 222.0f / 1024.0f, 39.0f / 1024.0f, 2.0f);
 	platform5->xPos = 1.0f;
 	platform5->yPos = -0.8f;
 	platform5->isStatic = true;
 	entities.push_back(platform5);
 
-	SheetSprite* item1 = new SheetSprite(spriteSheet, 224.0f / 1024.0f, 664.0f / 1024.0f, 101.0f / 1024.0f, 84.0f / 1024.0f);
+	SheetSprite* item1 = new SheetSprite(spriteSheet, 224.0f / 1024.0f, 664.0f / 1024.0f, 101.0f / 1024.0f, 84.0f / 1024.0f, 2.0f);
 	item1->xPos = -0.5f;
 	item1->yPos = -0.5f;
 	item1->isItem = true;
 	entities.push_back(item1);
 
-	SheetSprite* item2 = new SheetSprite(spriteSheet, 224.0f / 1024.0f, 664.0f / 1024.0f, 101.0f / 1024.0f, 84.0f / 1024.0f);
+	SheetSprite* item2 = new SheetSprite(spriteSheet, 224.0f / 1024.0f, 664.0f / 1024.0f, 101.0f / 1024.0f, 84.0f / 1024.0f, 2.0f);
 	item2->xPos = 0.5f;
 	item2->yPos = -0.5f;
 	item2->isItem = true;
 	entities.push_back(item2);
 
-	SheetSprite* player = new SheetSprite(spriteSheet, 444.0f / 1024.0f, 0.0f / 1024.0f, 91.0f / 1024.0f, 91.0f / 1024.0f);
+	SheetSprite* player = new SheetSprite(spriteSheet, 444.0f / 1024.0f, 0.0f / 1024.0f, 91.0f / 1024.0f, 91.0f / 1024.0f, 2.0f);
 	player->xPos = 0.0f;
 	player->yPos = 0.8f;
 	player->isPlayer = true;
