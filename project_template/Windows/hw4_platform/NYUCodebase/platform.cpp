@@ -338,6 +338,12 @@ void updateGame(float elapsed, int spriteSheetTexture){
 			}
 		}
 	}
+
+	for (size_t i = 0; i < entities.size(); i++){
+		if (entities[i]->isPlayer && entities[i]->yPos < -1.0f){
+			state = STATE_GAME_OVER;
+		}
+	}
 		
 }
 
@@ -392,11 +398,13 @@ void fixedUpdate(){
 						float y_penetration = fabs(fabs(entities[i]->yPos - entities[j]->yPos) - entities[i]->height / 2.0f - entities[j]->height / 2.0f);
 						if (entities[i]->yPos > entities[j]->yPos){
 							entities[i]->yPos += y_penetration + 0.001f;
+							entities[i]->velocity_y = 0.0f;
 							entities[i]->collidedBottom = true;
 							entities[i]->canJump = true;
 						}
 						else if (entities[i]->yPos < entities[j]->yPos){
 							entities[i]->yPos -= y_penetration + 0.001f;
+							entities[i]->velocity_y = 0.0f;
 							entities[i]->collidedTop = true;
 						}
 					}
