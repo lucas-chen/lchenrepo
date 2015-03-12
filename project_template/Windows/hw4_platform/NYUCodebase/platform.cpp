@@ -569,8 +569,8 @@ void loadSheets(int spriteSheet){
 	player->xPos = 0.0f;
 	player->yPos = 0.8f;
 	player->isPlayer = true;
-	player->friction_x = 3.0f;
-	player->friction_y = 3.0f;
+	player->friction_x = 5.0f;
+	player->friction_y = 5.0f;
 	entities.push_back(player);
 
 }
