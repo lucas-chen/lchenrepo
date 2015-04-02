@@ -119,7 +119,7 @@ void SheetSprite::Draw(float x, float y, float rotation) {
 	glLoadIdentity();
 	glTranslatef(x, y, 0.0f);
 	//glRotatef(rotation, 0.0f, 0.0f, 1.0f);
-	glScalef(scale, scale, 1.0f);
+	//glScalef(scale, scale, 1.0f);
 
 	GLfloat quad[] = { -width * 0.5f, height * 0.5f, -width * 0.5f, -height * 0.5f,
 		width * 0.5f, -height * 0.5f, width * 0.5f, height * 0.5f};
