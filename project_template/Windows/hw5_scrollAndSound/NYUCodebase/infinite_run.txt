@@ -3,11 +3,6 @@ width=128
 height=32
 tilewidth=16
 tileheight=16
-orientation=orthogonal
-
-[tilesets]
-tileset=scrollAndSound/sheet_4.png,16,16,0,0
-tileset=scrollAndSound/characters_1.png,16,16,0,0
 
 [layer]
 type=Tile Layer 1
@@ -439,4 +434,219 @@ location=76,28,0,0
 # platform
 type=platform
 location=3,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=80,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=81,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=82,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=83,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=84,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=85,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=86,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=87,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=88,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=91,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=92,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=93,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=94,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=95,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=96,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=97,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=101,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=103,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=102,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=103,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=104,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=105,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=106,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=108,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=108,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=107,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=109,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=112,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=113,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=114,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=115,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=116,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=117,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=119,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=118,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=120,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=121,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=122,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=123,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=124,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=125,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=126,28,0,0
+
+[Object Layer 1]
+# platform
+type=platform
+location=127,28,0,0
 

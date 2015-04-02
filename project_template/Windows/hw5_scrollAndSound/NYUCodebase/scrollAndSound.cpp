@@ -17,7 +17,9 @@ using namespace std;
 SDL_Window* displayWindow;
 
 // 60 FPS (1.0f/60.0f)
-#define FIXED_TIMESTEP 0.0166666f
+//#define FIXED_TIMESTEP 0.0166666f
+// 30 FPS (1.0f/30.0f)
+#define FIXED_TIMESTEP 0.0333333f
 #define MAX_TIMESTEPS 6
 float timeLeftOver = 0.0f;
 
@@ -268,7 +270,7 @@ bool readLayer(std::ifstream &stream) {
 					unsigned char val = (unsigned char)atoi(tile.c_str());
 					if (val > 0) {
 						// be careful, the tiles in this format are indexed from 1 not 0
-						levelData[y][x] = val - 1;
+						levelData[y][x] = val - 1;	
 					}
 					else {
 						levelData[y][x] = 0;
@@ -279,25 +281,7 @@ bool readLayer(std::ifstream &stream) {
 	}
 	return true;
 }
-/*
-void placeTile(){
-	float x;
-	float y;
-	for (size_t j = 0; j < mapHeight; j++) {
-		y = j * -0.0625f;
-		for (size_t i = 0; i < mapWidth; i++) {
-			x = i * 0.0625f;
-			if (levelData[j][i] == 39 || levelData[j][i] == 11) {
-				Entity* entity = new Entity(0.625f, 0.625f);
-				entity->type = "static";
-				entity->xPos = x + 0.5f * entity->width;
-				entity->yPos = y - 0.5f * entity->height;
-				tiles.push_back(entity);
-			}
-		}
-	}
-}
-*/
+
 
 void placeEntity(string& type, float& x, float& y){
 	if (type == "player") {
@@ -415,7 +399,6 @@ void updateMenu(float elapsed){
 				state = STATE_GAME_LEVEL;
 				ifstream infile("infinite_run.txt");
 				if (!(readEntity(infile))) { done = true; }
-				//else{ placeTile(); }
 
 				Mix_PlayChannel(1, pressSpaceSound, 0);
 			}
@@ -515,7 +498,7 @@ void updateGame(float elapsed){
 	}
 
 	for (size_t i = 0; i < entities.size(); i++){
-		if (entities[i]->type == "player" && entities[i]->xPos > 5.0f){
+		if (entities[i]->type == "player" && entities[i]->xPos > 8.0f){
 			winLose = "win";
 			state = STATE_GAME_OVER;
 		}
@@ -653,12 +636,31 @@ void renderGame() {
 
 
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glBindTexture(GL_TEXTURE_2D, mapSheet);
+	glEnable(GL_TEXTURE_2D);
+	glVertexPointer(2, GL_FLOAT, 0, vertexData.data());
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glTexCoordPointer(2, GL_FLOAT, 0, texCoordData.data());
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glPushMatrix();
-	
+	glTranslatef(-TILE_SIZE* mapWidth / 2, TILE_SIZE* mapHeight / 2, 0.0f);
+	glDrawArrays(GL_QUADS, 0, vertexData.size()/2);
+	//glDrawArrays(GL_QUADS, 0, vertexData.size()/2);
+	glDisable(GL_TEXTURE_2D);
+	//glDisable(GL_BLEND);
+	//glDisable(GL_VERTEX_ARRAY);
+	//glDisable(GL_TEXTURE_COORD_ARRAY);
+
 	int playerEntitiesIndex = 0;
 	for (size_t i = 0; i < entities.size(); i++) {
 		if (entities[i]->type == "player") { playerEntitiesIndex = i; }
 	}
+	glLoadIdentity();
 	glTranslatef(-entities[playerEntitiesIndex]->xPos, -entities[playerEntitiesIndex]->yPos, 0.0);
 	
 	for (size_t i = 0; i < entities.size(); i++) {
