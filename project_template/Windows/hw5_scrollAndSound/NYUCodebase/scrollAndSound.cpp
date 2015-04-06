@@ -670,7 +670,7 @@ void renderGame() {
 	}
 	for (size_t i = 0; i < entities.size(); i++) {
 		if (entities[i]->alive && entities[i]->type == "platform") {
-			entities[i]->render(charSheet);
+			entities[i]->render(mapSheet);
 		}
 	}
 	glMatrixMode(GL_MODELVIEW);
