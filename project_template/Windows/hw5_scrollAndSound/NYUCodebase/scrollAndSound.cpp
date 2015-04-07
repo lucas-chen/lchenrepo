@@ -127,7 +127,10 @@ void drawSprite(float x, float y, GLuint spriteTexture, int index, int spriteCou
 	float spriteWidth = 1.0f / (float)spriteCountX;
 	float spriteHeight = 1.0f / (float)spriteCountY;
 	GLfloat quad[] = { x + 0.5f * width, y - 0.5f * height, x + 0.5f * width, y + 0.5f * height, x - 0.5f * width, y + 0.5f * height, x - 0.5f * width, y - 0.5f * height }; 
-	GLfloat quadUVs[] = { u, v, u, v - spriteHeight, u + spriteWidth, v - spriteHeight, u + spriteWidth, v };
+	//GLfloat quad[] = { y - 0.5f * height, x - 0.5f * width, y + 0.5f * height, x - 0.5f * width, y + 0.5f * height, x + 0.5f * width, y - 0.5f * height, x + 0.5f * width };
+	//GLfloat quadUVs[] = { u, v, u, v - spriteHeight, u + spriteWidth, v - spriteHeight, u + spriteWidth, v };
+	//GLfloat quadUVs[] = { u, v, u, v + spriteHeight, u + spriteWidth, v + spriteHeight, u + spriteWidth, v };
+	GLfloat quadUVs[] = { u + spriteWidth, v + spriteHeight, u + spriteWidth, v, u, v, u, v + spriteHeight };
 	drawTexture(x, y, quad, quadUVs, spriteTexture);
 }
 
