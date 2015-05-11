@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="64" height="32" tilewidth="16" tileheight="16" nextobjectid="30">
+ <tileset firstgid="1" name="sheet_4" tilewidth="16" tileheight="16">
+  <image source="final/sheet_4.png" width="224" height="128"/>
+ </tileset>
+ <tileset firstgid="113" name="characters_1" tilewidth="16" tileheight="16">
+  <image source="final/characters_1.png" width="192" height="128"/>
+ </tileset>
+ <tileset firstgid="209" name="tux_bros" tilewidth="16" tileheight="16">
+  <image source="final/tux_bros.png" width="1024" height="512"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="64" height="32">
+  <data encoding="base64" compression="zlib">
+   eJztwwEJAAAMBKHr+P27LMdAwVVTVVVVVVVVVV8/vumYHw==
+  </data>
+ </layer>
+ <objectgroup name="Object Layer 1">
+  <object id="8" name="p2left" type="p2left" gid="133" x="1008" y="256"/>
+  <object id="9" name="p1right" type="p1right" gid="137" x="0" y="272"/>
+  <object id="12" name="gem" type="gem" gid="880" x="336" y="256"/>
+  <object id="14" name="p2up" type="p2up" gid="155" x="1008" y="224"/>
+  <object id="15" name="p2down" type="p2down" gid="119" x="1008" y="240"/>
+  <object id="16" name="p2right" type="p2right" gid="143" x="1008" y="272"/>
+  <object id="17" name="p1down" type="p1down" gid="113" x="0" y="240"/>
+  <object id="18" name="p1up" type="p1up" gid="149" x="0" y="224"/>
+  <object id="19" name="p1left" type="p1left" gid="125" x="0" y="256"/>
+  <object id="21" name="p1taildown" type="p1taildown" gid="122" x="0" y="304"/>
+  <object id="22" name="p1tailleft" type="p1tailleft" gid="134" x="0" y="320"/>
+  <object id="23" name="p1tailright" type="p1tailright" gid="146" x="0" y="336"/>
+  <object id="24" name="p1tailup" type="p1tailup" gid="158" x="0" y="288"/>
+  <object id="25" name="p2tailup" type="p2tailup" gid="203" x="1008" y="288"/>
+  <object id="26" name="p2taildown" type="p2taildown" gid="167" x="1008" y="304"/>
+  <object id="27" name="p2tailleft" type="p2tailleft" gid="179" x="1008" y="320"/>
+  <object id="28" name="p2tailright" type="p2tailright" gid="191" x="1008" y="336"/>
+  <object id="29" name="enemy" type="enemy" gid="635" x="368" y="256"/>
+ </objectgroup>
+</map>

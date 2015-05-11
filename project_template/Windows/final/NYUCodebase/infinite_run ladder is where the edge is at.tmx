@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="128" height="32" tilewidth="16" tileheight="16" nextobjectid="183">
  <tileset firstgid="1" name="scrollAndSound" tilewidth="16" tileheight="16">
-  <image source="scrollAndSound/sheet_4.png" width="224" height="128"/>
+  <image source="../../hw5_scrollAndSound/NYUCodebase/scrollAndSound/sheet_4.png" width="224" height="128"/>
  </tileset>
  <tileset firstgid="113" name="scrollAndSound2" tilewidth="16" tileheight="16">
-  <image source="scrollAndSound/characters_1.png" width="192" height="128"/>
+  <image source="../../hw5_scrollAndSound/NYUCodebase/scrollAndSound/characters_1.png" width="192" height="128"/>
  </tileset>
  <layer name="Tile Layer 1" width="128" height="32">
   <data encoding="base64" compression="zlib">

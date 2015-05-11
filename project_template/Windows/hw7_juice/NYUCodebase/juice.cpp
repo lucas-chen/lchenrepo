@@ -34,7 +34,7 @@ float timeLeftOver = 0.0f;
 enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_GAME_OVER };
 int state;
 float gravity_x = 0.0f;
-float gravity_y = -15.8f;
+float gravity_y = -10.8f;
 unsigned int mapWidth;
 unsigned int mapHeight;
 unsigned char** levelData;
@@ -870,19 +870,6 @@ void renderGame() {
 	
 	glTranslatef(0.0f, sin(screenShakeValue * screenShakeSpeed)* screenShakeIntensity, 0.0f);
 	glTranslatef(noise1(perlinValue), noise1(perlinValue + 10.0f), 0.0f);
-
-	glBindTexture(GL_TEXTURE_2D, mapSheet);
-	glEnable(GL_TEXTURE_2D);
-	glVertexPointer(2, GL_FLOAT, 0, vertexData.data());
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glTexCoordPointer(2, GL_FLOAT, 0, texCoordData.data());
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glPushMatrix();
-	glDrawArrays(GL_QUADS, 0, vertexData.size()/2);
-	glDisable(GL_TEXTURE_2D);
 	
 
 	int playerEntitiesIndex = 0;

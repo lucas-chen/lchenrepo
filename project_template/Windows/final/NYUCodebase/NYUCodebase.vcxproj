@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="final.cpp" />
+    <ClCompile Include="PerlinNoise.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{49111BA2-C0AC-4ADA-A952-A55E3AF00AC8}</ProjectGuid>
