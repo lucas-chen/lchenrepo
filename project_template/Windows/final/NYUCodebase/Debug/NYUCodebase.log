@@ -1,13 +1,15 @@
-﻿Build started 5/11/2015 11:59:35 AM.
+﻿Build started 5/11/2015 2:52:24 PM.
      1>Project "C:\Users\Rin Mikoto\Documents\GitHub\lchenrepo\project_template\Windows\final\NYUCodebase\NYUCodebase.vcxproj" on node 2 (Build target(s)).
-     1>Link:
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IC:\SDL2\include /IC:\SDL2_image\include /IC:\SDL2_mixer\include /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt final.cpp
+         final.cpp
+     1>c:\users\rin mikoto\documents\github\lchenrepo\project_template\windows\final\nyucodebase\final.cpp(2084): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+       Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Rin Mikoto\Documents\GitHub\lchenrepo\project_template\Windows\final\Debug\NYUCodebase.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\SDL2\lib\x86 /LIBPATH:C:\SDL2_image\lib\x86 /LIBPATH:C:\SDL2_mixer\lib\x86 SDL2.lib SDL2main.lib SDL2_image.lib OpenGL32.lib SDL2_mixer.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Rin Mikoto\Documents\GitHub\lchenrepo\project_template\Windows\final\Debug\NYUCodebase.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Rin Mikoto\Documents\GitHub\lchenrepo\project_template\Windows\final\Debug\NYUCodebase.lib" /MACHINE:X86 Debug\final.obj
-         Debug\PerlinNoise.obj
      1>MSVCRTD.lib(cinitexe.obj) : warning LNK4098: defaultlib 'msvcrt.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
-     1>PerlinNoise.obj : warning LNK4099: PDB 'vc120.pdb' was not found with 'PerlinNoise.obj' or at 'C:\Users\Rin Mikoto\Documents\GitHub\lchenrepo\project_template\Windows\final\Debug\vc120.pdb'; linking object as if no debug info
          NYUCodebase.vcxproj -> C:\Users\Rin Mikoto\Documents\GitHub\lchenrepo\project_template\Windows\final\Debug\NYUCodebase.exe
      1>Done Building Project "C:\Users\Rin Mikoto\Documents\GitHub\lchenrepo\project_template\Windows\final\NYUCodebase\NYUCodebase.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.68
+Time Elapsed 00:00:03.38

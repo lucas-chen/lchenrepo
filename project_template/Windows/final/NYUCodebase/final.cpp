@@ -13,7 +13,6 @@
 #include <sstream>
 
 #include <SDL_mixer.h>
-#include "PerlinNoise.h"
 using namespace std;
 
 SDL_Window* displayWindow;
@@ -43,8 +42,6 @@ float shakeTimer = 0.0f;
 float screenShakeValue = 0.0f;
 float screenShakeSpeed = 0.0f;
 float screenShakeIntensity = 0.0f;
-
-float perlinValue;
 
 Mix_Music* music;
 Mix_Chunk* pressSpaceSound;
@@ -336,17 +333,17 @@ void Snake::render(GLuint& spriteTexture){
 }
 
 
-bool isColliding(Entity* e1, Entity* e2){
+bool isColliding(Entity* e1, Entity* e2, float mult){
 
-	float e1Top = e1->yPos + e1->height * 0.5f;
-	float e1Bot = e1->yPos - e1->height * 0.5f;
-	float e1Left = e1->xPos - e1->width * 0.5f;
-	float e1Right = e1->xPos + e1->width * 0.5f;
+	float e1Top = e1->yPos + e1->height * mult;
+	float e1Bot = e1->yPos - e1->height * mult;
+	float e1Left = e1->xPos - e1->width * mult;
+	float e1Right = e1->xPos + e1->width * mult;
 
-	float e2Top = e2->yPos + e2->height * 0.5f;
-	float e2Bot = e2->yPos - e2->height * 0.5f;
-	float e2Left = e2->xPos - e2->width * 0.5f;
-	float e2Right = e2->xPos + e2->width * 0.5f;
+	float e2Top = e2->yPos + e2->height * mult;
+	float e2Bot = e2->yPos - e2->height * mult;
+	float e2Left = e2->xPos - e2->width * mult;
+	float e2Right = e2->xPos + e2->width * mult;
 
 	if (e1Bot > e2Top){
 		return false;
@@ -774,7 +771,6 @@ void updateMenu(float elapsed){
 void updateGameLevel1(float elapsed){
 	SDL_Event event;
 
-	//perlinValue += elapsed;
 	if (shakeTimer > 0.0f && screenShaking){
 		screenShakeValue += elapsed;
 		shakeTimer = shakeTimer--;
@@ -857,7 +853,7 @@ void updateGameLevel1(float elapsed){
 
 	//collision into other player
 	for (size_t i = 0; i < player2->body.size(); i++){
-		if (isColliding((player1->body[0]), player2->body[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player1->body[0]), player2->body[i], 0.1f) && !player1->crashed && !player2->crashed){
 			if (i == 0){
 				if (p1score > p2score){
 					winLose = "p1win";
@@ -877,7 +873,7 @@ void updateGameLevel1(float elapsed){
 	}
 
 	for (size_t i = 0; i < player1->body.size(); i++){
-		if (isColliding((player2->body[0]), player1->body[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player2->body[0]), player1->body[i], 0.1f) && !player1->crashed && !player2->crashed){
 			if (i == 0){
 				if (p1score > p2score){
 					winLose = "p1win";
@@ -898,7 +894,7 @@ void updateGameLevel1(float elapsed){
 	
 	//collecting gems
 	for (size_t i = 0; i < gems.size(); i++){
-		if (isColliding((player1->body[0]), gems[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player1->body[0]), gems[i], 0.5f) && !player1->crashed && !player2->crashed){
 
 			Mix_PlayChannel(5, collectSound, 0);
 			p1score += random1To3();
@@ -939,7 +935,7 @@ void updateGameLevel1(float elapsed){
 	}
 
 	for (size_t i = 0; i < gems.size(); i++){
-		if (isColliding((player2->body[0]), gems[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player2->body[0]), gems[i], 0.5f) && !player1->crashed && !player2->crashed){
 
 			Mix_PlayChannel(5, collectSound, 0);
 			p2score += random1To3();
@@ -1048,7 +1044,6 @@ void updateGameLevel1(float elapsed){
 void updateGameLevel2(float elapsed){
 	SDL_Event event;
 
-	//perlinValue += elapsed;
 	if (shakeTimer > 0.0f && screenShaking){
 		screenShakeValue += elapsed;
 		shakeTimer = shakeTimer--;
@@ -1114,7 +1109,7 @@ void updateGameLevel2(float elapsed){
 
 	//collision into other player
 	for (size_t i = 0; i < player2->body.size(); i++){
-		if (isColliding((player1->body[0]), player2->body[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player1->body[0]), player2->body[i], 0.1f) && !player1->crashed && !player2->crashed){
 			if (i == 0){
 				if (p1score > p2score){
 					winLose = "p1win";
@@ -1134,7 +1129,7 @@ void updateGameLevel2(float elapsed){
 	}
 
 	for (size_t i = 0; i < player1->body.size(); i++){
-		if (isColliding((player2->body[0]), player1->body[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player2->body[0]), player1->body[i], 0.1f) && !player1->crashed && !player2->crashed){
 			if (i == 0){
 				if (p1score > p2score){
 					winLose = "p1win";
@@ -1155,7 +1150,7 @@ void updateGameLevel2(float elapsed){
 
 	//collecting gems
 	for (size_t i = 0; i < gems.size(); i++){
-		if (isColliding((player1->body[0]), gems[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player1->body[0]), gems[i], 0.5f) && !player1->crashed && !player2->crashed){
 			Mix_PlayChannel(5, collectSound, 0);
 			p1score += random1To3();
 
@@ -1174,7 +1169,7 @@ void updateGameLevel2(float elapsed){
 	}
 
 	for (size_t i = 0; i < gems.size(); i++){
-		if (isColliding((player2->body[0]), gems[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player2->body[0]), gems[i], 0.5f) && !player1->crashed && !player2->crashed){
 
 			Mix_PlayChannel(5, collectSound, 0);
 			p2score += random1To3();
@@ -1193,13 +1188,13 @@ void updateGameLevel2(float elapsed){
 
 	//collision into enemies
 	for (size_t i = 0; i < enemies.size(); i++){
-		if (isColliding((player2->body[0]), enemies[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player2->body[0]), enemies[i], 0.5f) && !player1->crashed && !player2->crashed){
 			Mix_PlayChannel(3, bombSound, 0);
 			player2->crashed = true;
 		}
 	}
 	for (size_t i = 0; i < enemies.size(); i++){
-		if (isColliding((player1->body[0]), enemies[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player1->body[0]), enemies[i], 0.5f) && !player1->crashed && !player2->crashed){
 			Mix_PlayChannel(3, bombSound, 0);
 			player1->crashed = true;
 		}
@@ -1274,7 +1269,6 @@ void updateGameLevel2(float elapsed){
 void updateGameLevel3(float elapsed){
 	SDL_Event event;
 
-	//perlinValue += elapsed;
 	if (shakeTimer > 0.0f && screenShaking){
 		screenShakeValue += elapsed;
 		shakeTimer = shakeTimer--;
@@ -1340,7 +1334,7 @@ void updateGameLevel3(float elapsed){
 
 	//collision into other player
 	for (size_t i = 0; i < player2->body.size(); i++){
-		if (isColliding((player1->body[0]), player2->body[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player1->body[0]), player2->body[i], 0.1f) && !player1->crashed && !player2->crashed){
 			if (i == 0){
 				if (p1score > p2score){
 					winLose = "p1win";
@@ -1360,7 +1354,7 @@ void updateGameLevel3(float elapsed){
 	}
 
 	for (size_t i = 0; i < player1->body.size(); i++){
-		if (isColliding((player2->body[0]), player1->body[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player2->body[0]), player1->body[i], 0.1f) && !player1->crashed && !player2->crashed){
 			if (i == 0){
 				if (p1score > p2score){
 					winLose = "p1win";
@@ -1381,7 +1375,7 @@ void updateGameLevel3(float elapsed){
 
 	//collecting gems
 	for (size_t i = 0; i < gems.size(); i++){
-		if (isColliding((player1->body[0]), gems[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player1->body[0]), gems[i], 0.5f) && !player1->crashed && !player2->crashed){
 
 			Mix_PlayChannel(5, collectSound, 0);
 			p1score += random1To3();
@@ -1426,7 +1420,7 @@ void updateGameLevel3(float elapsed){
 	}
 
 	for (size_t i = 0; i < gems.size(); i++){
-		if (isColliding((player2->body[0]), gems[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player2->body[0]), gems[i], 0.5f) && !player1->crashed && !player2->crashed){
 
 			Mix_PlayChannel(5, collectSound, 0);
 			p2score += random1To3();
@@ -1472,13 +1466,13 @@ void updateGameLevel3(float elapsed){
 
 	// collision into enemies
 	for (size_t i = 0; i < enemies.size(); i++){
-		if (isColliding((player2->body[0]), enemies[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player2->body[0]), enemies[i], 0.5f) && !player1->crashed && !player2->crashed){
 			Mix_PlayChannel(3, bombSound, 0);
 			player2->crashed = true;
 		}
 	}
 	for (size_t i = 0; i < enemies.size(); i++){
-		if (isColliding((player1->body[0]), enemies[i]) && !player1->crashed && !player2->crashed){
+		if (isColliding((player1->body[0]), enemies[i], 0.5f) && !player1->crashed && !player2->crashed){
 			Mix_PlayChannel(3, bombSound, 0);
 			player1->crashed = true;
 		}
@@ -1571,7 +1565,7 @@ void updateGameOver(float elapsed){
 void fixedUpdate(){
 	if (gamestate == 1 || gamestate == 2 || gamestate == 3){
 		if (!player1->crashed && !player2->crashed){
-			//comment out to test 1 player
+			//comment out to test player1
 			if (player1->body[0]->type == "p1up"){
 			player1->body[0]->yPos += player1->body[0]->velocity_y * FIXED_TIMESTEP;
 			}
@@ -1585,7 +1579,7 @@ void fixedUpdate(){
 			player1->body[0]->xPos += player1->body[0]->velocity_x * FIXED_TIMESTEP;
 			}
 			
-			//comment out to test 1 player
+			//comment out to test player2 
 			/*
 			if (player2->body[0]->type == "p2up"){
 				player2->body[0]->yPos += player2->body[0]->velocity_y * FIXED_TIMESTEP;
@@ -1777,7 +1771,7 @@ void renderMenu() {
 		DrawText(textSheet, "Avoid walls. Beware the timer.", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		glLoadIdentity();
 		glTranslatef(easeIn(-1.2f, -3.5f, animationValue4), easeIn(-0.4f, -3.5f, animationValue4), 0.0f);
-		DrawText(textSheet, "Don't hit the other player's tail.", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(textSheet, "Beware the other player's tail whip.", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		glLoadIdentity();
 		glTranslatef(easeIn(-1.2f, -3.5f, animationValue4), easeIn(-0.5f, -3.5f, animationValue4), 0.0f);
 		DrawText(textSheet, "Attack the player's head if you have higher score.", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -1787,6 +1781,9 @@ void renderMenu() {
 		glLoadIdentity();
 		glTranslatef(easeIn(-0.7f, -3.5f, animationValue4), easeIn(-0.8f, -3.5f, animationValue4), 0.0f);
 		DrawText(textSheet, "Press Esc to escape end game.", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		glLoadIdentity();
+		glTranslatef(easeIn(-0.7f, -3.5f, animationValue4), easeIn(-0.9f, -3.5f, animationValue4), 0.0f);
+		DrawText(textSheet, "Press Space to Start", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	if (menuOption == 1){
 		glLoadIdentity();
@@ -1819,6 +1816,9 @@ void renderMenu() {
 		glLoadIdentity();
 		glTranslatef(easeIn(-0.7f, -3.5f, animationValue4), easeIn(-0.8f, -3.5f, animationValue4), 0.0f);
 		DrawText(textSheet, "Press Esc to escape end game.", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		glLoadIdentity();
+		glTranslatef(easeIn(-0.7f, -3.5f, animationValue4), easeIn(-0.9f, -3.5f, animationValue4), 0.0f);
+		DrawText(textSheet, "Press Space to Start", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	if (menuOption == 2){
 		glLoadIdentity();
@@ -1844,7 +1844,7 @@ void renderMenu() {
 		DrawText(textSheet, "Avoid walls. Avoid enemies.", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		glLoadIdentity();
 		glTranslatef(easeIn(-1.2f, -3.5f, animationValue4), easeIn(-0.4f, -3.5f, animationValue4), 0.0f);
-		DrawText(textSheet, "Don't hit the other player's tail.", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(textSheet, "Beware the other player's tail whip.", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		glLoadIdentity();
 		glTranslatef(easeIn(-1.2f, -3.5f, animationValue4), easeIn(-0.5f, -3.5f, animationValue4), 0.0f);
 		DrawText(textSheet, "Attack the player's head if you have higher score.", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -1854,6 +1854,9 @@ void renderMenu() {
 		glLoadIdentity();
 		glTranslatef(easeIn(-0.7f, -3.5f, animationValue4), easeIn(-0.8f, -3.5f, animationValue4), 0.0f);
 		DrawText(textSheet, "Press Esc to escape end game.", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		glLoadIdentity();
+		glTranslatef(easeIn(-0.7f, -3.5f, animationValue4), easeIn(-0.9f, -3.5f, animationValue4), 0.0f);
+		DrawText(textSheet, "Press Space to Start", 0.04f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	}
 }
 
